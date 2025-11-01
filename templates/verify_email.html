@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+    <div style="max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center;">
+      <h2 style="color: #333;">Hello {{ name }} 👋</h2>
+      <p style="color: #555;">Thank you for submitting your form. Please verify your submission by clicking the button below:</p>
+      <a href="{{ verify_url }}"
+         style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px;">
+         ✅ Verify Now
+      </a>
+      <p style="font-size: 14px; color: #888; margin-top: 20px;">
+        If the button doesn’t work, copy this link: <br>
+        <a href="{{ verify_url }}" style="color: #0066cc;">{{ verify_url }}</a>
+      </p>
+    </div>
+  </body>
+</html>
