@@ -4,15 +4,13 @@ from email.message import EmailMessage
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
-import urllib.parse, uuid ,json
-import os # unique token generate করার জন্য uuid
+import urllib.parse, uuid  # unique token generate করার জন্য uuid
 
 app = Flask(__name__)
 
 # --- Google Sheets Setup ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(os.environ["GOOGLE_CREDS"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("Form Responses").sheet1
 
@@ -65,4 +63,4 @@ def verify():
     return "<h2>❌ Invalid or already verified link!</h2>"
 
 if __name__ == "__main__":
-      app.run(host="0.0.0.0",port=5000,debug=True)
+ app.run(host="0.0.0.0",port=5000,debug=True)
