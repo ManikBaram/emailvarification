@@ -17,8 +17,8 @@ client = gspread.authorize(creds)
 sheet = client.open("Form Responses").sheet1
 
 # --- Email Setup ---
-SENDER_EMAIL = "barammanik@gmail.com"
-SENDER_PASS = "uwzl iggg iwbl vcec"
+SENDER_EMAIL = os.environ["SENDER_EMAIL"]
+SENDER_PASS = os.environ["SENDER_PASS"]
 
 @app.route("/")
 def index():
