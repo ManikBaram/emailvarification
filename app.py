@@ -1,4 +1,3 @@
-import os, json
 from flask import Flask, render_template, request
 import smtplib
 from email.message import EmailMessage
@@ -11,18 +10,22 @@ app = Flask(__name__)
 
 # --- Google Sheets Setup ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(os.environ["GOOGLE_CREDS"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("Form Responses").sheet1
 
-# --- Email Setup ---
-SENDER_EMAIL = os.environ["SENDER_EMAIL"]
-SENDER_PASS = os.environ["SENDER_PASS"]
+# --- Brevo SMTP Setup ---
+BREVO_SMTP_SERVER = "smtp-relay.brevo.com"
+BREVO_SMTP_PORT = 587
+BREVO_USERNAME = "9ba143001@smtp-brevo.com"   # Your Brevo login username
+BREVO_PASSWORD = "xsmtpsib-51a64dc99f512c49c79dda57ae1fe088c96181b79b60cfdea5cbe03b0ee0a5a4-HjPOVzQl42bPJjep"        # Replace with Brevo SMTP key
+FROM_EMAIL = "barammanik@gmail.com"          # Must be a verified Brevo sender email
+
 
 @app.route("/")
 def index():
     return render_template("form.html")
+
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -38,22 +41,24 @@ def submit():
 
     msg = EmailMessage()
     msg["Subject"] = "Verify your form submission"
-    msg["From"] = SENDER_EMAIL
+    msg["From"] = FROM_EMAIL
     msg["To"] = email
     msg.add_alternative(html_content, subtype="html")
 
-    # মেইল পাঠানো
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(SENDER_EMAIL, SENDER_PASS)
+    # ---------- Brevo SMTP ----------
+    with smtplib.SMTP(BREVO_SMTP_SERVER, BREVO_SMTP_PORT) as smtp:
+        smtp.starttls()  # TLS start (VERY IMPORTANT)
+        smtp.login(BREVO_USERNAME, BREVO_PASSWORD)
         smtp.send_message(msg)
 
     # Google Sheet-এ ডেটা যোগ করা
     sheet.append_row([name, email, token, "Pending", datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+
     return render_template("sucess.html")
+
 
 @app.route("/verify")
 def verify():
-
     token = request.args.get("token")
 
     records = sheet.get_all_records()
@@ -64,5 +69,6 @@ def verify():
 
     return "<h2>❌ Invalid or already verified link!</h2>"
 
+
 if __name__ == "__main__":
- app.run(host="0.0.0.0",port=5000,debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
