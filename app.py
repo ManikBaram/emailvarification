@@ -1,3 +1,5 @@
+import json
+import os
 from flask import Flask, render_template, request
 import smtplib
 from email.message import EmailMessage
